@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Local Talent | Find Skilled Professionals</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero">
+  <h1>Discover Skilled Local Talent Near You</h1>
+  <p>Electricians • Plumbers • Tailors • Women Professionals</p>
+
+  <div style="position:relative; max-width:600px; margin:0 auto;">
+    <input
+      id="search"
+      type="text"
+      placeholder="Search skill or name (eg: Electrician)"
+      autocomplete="off"
+    >
+    <div id="suggestions" class="suggestions" role="listbox" aria-label="Search suggestions" style="display:none; position:absolute; left:0; right:0; max-height:220px; overflow:auto;">
+      <!-- suggestion items inserted here -->
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="list">
+    <h2>Available Professionals</h2>
+    <div id="workers"></div>
+  </section>
+
+  <section class="map">
+    <h2>Your Location</h2>
+    <iframe
+      src="https://www.google.com/maps?q=Narasaraopeta&output=embed"
+      loading="lazy">
+    </iframe>
+  </section>
+</main>
+
+<section class="register">
+  <div class="register-card">
+    <h2>Register as a Professional</h2>
+
+    <form id="reg_form" autocomplete="on" novalidate>
+      <div class="form-row">
+        <label for="reg_name">Worker Name</label>
+        <input id="reg_name" class="form-input" placeholder="Worker Name" required aria-required="true">
+        <div class="field-error" id="err_name" aria-live="polite"></div>
+      </div>
+
+      <div class="form-row">
+        <label for="reg_skill">Skill (Electrician, Plumber...)</label>
+        <input id="reg_skill" class="form-input" placeholder="Skill (e.g. Electrician)" required aria-required="true">
+        <div class="field-error" id="err_skill" aria-live="polite"></div>
+      </div>
+
+      <div class="form-row">
+        <label for="reg_category">Select Category</label>
+        <select id="reg_category" class="form-input">
+          <option value="">Select Category</option>
+          <option value="General">General</option>
+          <option value="Women">Women</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="reg_city">City (e.g. Narasaraopet)</label>
+        <input id="reg_city" class="form-input" placeholder="City" required aria-required="true">
+        <div class="field-error" id="err_city" aria-live="polite"></div>
+      </div>
+
+      <div class="form-row">
+        <label for="reg_phone">Phone Number</label>
+        <input id="reg_phone" class="form-input" placeholder="Phone Number" required aria-required="true" inputmode="tel">
+        <div class="field-error" id="err_phone" aria-live="polite"></div>
+      </div>
+
+      <div class="form-row">
+        <label for="reg_experience">Experience (e.g. 5 or '5 years')</label>
+        <input id="reg_experience" class="form-input" placeholder="Experience in years (optional)" inputmode="numeric">
+        <div class="field-error" id="err_exp" aria-live="polite"></div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" id="reg_submit" class="btn-primary">➕ Register</button>
+        <div id="reg_msg" aria-live="polite" class="form-status"></div>
+      </div>
+    </form>
+
+  </div>
+</section>
+
+<footer>
+  © 2025 Local Talent Platform
+</footer>
+
+<div style="text-align:center; margin-top:12px;">
+  <button id="load_more_btn" class="btn-load hidden">Load more</button>
+</div>
+
+<button id="back_to_top" class="hidden" title="Back to top">↑</button>
+
+<script src="intro.js"></script>
+<script>
+// Load more behavior
+const loadMoreBtn = document.getElementById('load_more_btn');
+if (loadMoreBtn) {
+  loadMoreBtn.addEventListener('click', () => {
+    currentLimit += PAGE_SIZE;
+    render(workers);
+    // smooth scroll to newly revealed area
+    const el = document.getElementById('workers');
+    el.scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+// Back to top behavior
+const backBtn = document.getElementById('back_to_top');
+window.addEventListener('scroll', () => {
+  if (!backBtn) return;
+  if (window.scrollY > 300) backBtn.classList.remove('hidden'); else backBtn.classList.add('hidden');
+});
+if (backBtn) backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+const regForm = document.getElementById('reg_form');
+const regMsg = document.getElementById('reg_msg');
+
+regForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  // Clear previous errors
+  ['err_name','err_skill','err_city','err_phone','err_exp'].forEach(id => document.getElementById(id).textContent = '');
+  regMsg.textContent = '';
+
+  const btn = document.getElementById('reg_submit');
+  const worker = {
+    name: document.getElementById('reg_name').value.trim(),
+    skill: document.getElementById('reg_skill').value.trim(),
+    category: document.getElementById('reg_category').value,
+    city: document.getElementById('reg_city').value.trim(),
+    phone: document.getElementById('reg_phone').value.trim(),
+    experience: document.getElementById('reg_experience').value.trim()
+  };
+
+  // Validation
+  let hasError = false;
+  if (!worker.name) { document.getElementById('err_name').textContent = 'Enter name'; hasError = true; }
+  if (!worker.skill) { document.getElementById('err_skill').textContent = 'Enter a skill'; hasError = true; }
+  if (!worker.city) { document.getElementById('err_city').textContent = 'Enter a city'; hasError = true; }
+  const phoneDigits = (worker.phone || '').replace(/\D/g, '');
+  if (!phoneDigits || phoneDigits.length < 7) { document.getElementById('err_phone').textContent = 'Enter a valid phone number'; hasError = true; }
+
+  if (hasError) return;
+
+  btn.disabled = true; regMsg.textContent = 'Registering...';
+
+  try {
+    const prevY = window.scrollY || 0;
+    const res = await fetch('/api/add-worker', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(worker)
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      regMsg.textContent = data.error || 'Server error';
+      throw new Error(data.error || 'Server error');
+    }
+
+    regMsg.textContent = 'Registered successfully ✅';
+
+    // Insert new worker into local list and highlight
+    if (data.worker) {
+      // ensure consistency: server returns 'worker' with id
+      workers.unshift(data.worker);
+      window.newlyAddedId = data.worker.id;
+      render(workers);
+
+      // remove highlight after 4s
+      setTimeout(() => { window.newlyAddedId = null; render(workers); }, 4000);
+    } else if (window.loadWorkers) {
+      // fallback: reload list
+      await window.loadWorkers();
+    }
+
+    // Clear form
+    regForm.reset();
+
+    // restore scroll position
+    window.scrollTo(0, prevY);
+
+  } catch (err) {
+    // already showed message
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

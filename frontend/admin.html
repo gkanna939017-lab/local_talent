@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel | LocalTalent</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #1e3c72;
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .success {
+            text-align: center;
+            color: green;
+            margin-top: 15px;
+        }
+
+        .error {
+            text-align: center;
+            color: red;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <h2>Admin – Add Worker</h2>
+
+    <input id="name" placeholder="Worker Name">
+    <input id="skill" placeholder="Skill (Electrician, Plumber...)">
+
+    <select id="category">
+        <option value="">Select Category</option>
+        <option value="General">General</option>
+        <option value="Women">Women</option>
+    </select>
+
+    <input id="city" placeholder="City (e.g. Narasaraopet)">
+    <input id="phone" placeholder="Phone Number">
+    <input id="experience" placeholder="Experience (e.g. 5 Years)">
+
+    <button id="addBtn">➕ Add Worker</button>
+
+    <div id="msg"></div>
+</div>
+
+<script>
+document.getElementById('addBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('addBtn');
+  const msg = document.getElementById('msg');
+
+  const worker = {
+    name: document.getElementById('name').value.trim(),
+    skill: document.getElementById('skill').value.trim(),
+    category: document.getElementById('category').value,
+    city: document.getElementById('city').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    experience: document.getElementById('experience').value.trim()
+  };
+
+  // Basic validation
+  if (!worker.name || !worker.skill || !worker.city || !worker.phone) {
+    msg.innerHTML = "<p class='error'>Please fill required fields</p>";
+    return;
+  }
+
+  // Optional: validate phone length (10 digits typical)
+  const phoneDigits = worker.phone.replace(/\D/g, '');
+  if (phoneDigits.length < 7) {
+    msg.innerHTML = "<p class='error'>Please provide a valid phone number</p>";
+    return;
+  }
+
+  btn.disabled = true;
+  msg.innerHTML = "<p>Adding...</p>";
+
+  try {
+    const prevY = window.scrollY || 0;
+
+    const res = await fetch('/api/add-worker', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(worker)
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Server error');
+
+    msg.innerHTML = '<p class="success">Worker added successfully ✅</p>';
+
+    // Reset fields
+    document.querySelectorAll('input').forEach(i => i.value = '');
+    document.getElementById('category').value = '';
+
+    // Refresh listing if available and restore scroll
+    if (window.loadWorkers) {
+      await window.loadWorkers();
+      window.scrollTo(0, prevY);
+    }
+  } catch (err) {
+    msg.innerHTML = `<p class='error'>Error: ${err.message}</p>`;
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>

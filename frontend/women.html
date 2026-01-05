@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Women Services | LocalTalent</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <h2>👩 Women Services</h2>
+  <a href="intro.html">⬅ Back</a>
+</header>
+
+<div class="cards" id="womenList"></div>
+
+<script>
+fetch("/api/search?q=woman")
+.then(res => res.json())
+.then(data => {
+  const list = document.getElementById("womenList");
+  // format experience: backend returns `experience` (number) while older UI used `exp` string
+  const fmtExp = x => (x === undefined || x === null || x === '') ? '' : (typeof x === 'number' ? `${x} years` : x);
+  data.forEach(w => {
+    const expText = fmtExp(w.experience ?? w.exp);
+    list.innerHTML += `
+      <div class="card">
+        <h3>${w.name}</h3>
+        <p>${w.skill}</p>
+        <p>${expText}</p>
+        <a class="call" href="tel:${w.phone}">📞 Call</a>
+        <a class="whatsapp" 
+           href="https://wa.me/${w.phone.replace('+','')}" 
+           target="_blank">💬 WhatsApp</a>
+      </div>
+    `;
+  });
+});
+</script>
+
+</body>
+</html>
