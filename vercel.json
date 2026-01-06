@@ -1,0 +1,10 @@
+{
+  "buildCommand": "exit 0",
+  "outputDirectory": "frontend",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
