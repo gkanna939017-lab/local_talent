@@ -1,10 +1,12 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from pydantic import BaseModel, Field
 import os
 import asyncio
 import asyncpg
 from typing import Optional, List
 from dotenv import load_dotenv
+from collections import defaultdict
+import json
 
 load_dotenv()
 
@@ -109,10 +111,6 @@ async def search(q: Optional[str] = None):
 
 
 # ---- Bookings and live tracking ----
-from fastapi import WebSocket, WebSocketDisconnect
-from pydantic import Field
-from collections import defaultdict
-import json
 
 class BookingIn(BaseModel):
     worker_id: int
