@@ -51,8 +51,20 @@
       </div>
 
       <div class="form-row">
-        <label for="reg_skill">Skill (Electrician, Plumber...)</label>
-        <input id="reg_skill" class="form-input" placeholder="Skill (e.g. Electrician)" required aria-required="true">
+        <label for="reg_skill">Skill / Training (choose one)</label>
+        <select id="reg_skill" class="form-input" required aria-required="true">
+          <option value="">Select Skill or Training</option>
+          <option value="Electrician">Electrician</option>
+          <option value="Plumber">Plumber</option>
+          <option value="Carpenter">Carpenter</option>
+          <option value="Tailoring">Tailoring / Fashion Designing</option>
+          <option value="Cooking">Cooking / Culinary Arts</option>
+          <option value="Electrician Training">Electrician Training</option>
+          <option value="Plumbing Training">Plumbing Training</option>
+          <option value="IT Training">IT / Software</option>
+          <option value="Spoken English">Spoken English</option>
+          <option value="Tuition">Tuition</option>
+        </select>
         <div class="field-error" id="err_skill" aria-live="polite"></div>
       </div>
 

@@ -12,6 +12,30 @@ const professionals = [
     phones: ["9123456780"],
     experience: "8 years",
     city: "Guntur"
+  },
+  {
+    name: "Lakshmi Devi",
+    skill: "Tailoring",
+    phones: ["+91 98765 43226"],
+    experience: "15 years",
+    city: "Narasaraopet",
+    description: "Learn complete tailoring from basics to blouse cutting and dress making. Home-based classes available.",
+  },
+  {
+    name: "Srinivas Rao",
+    skill: "Electrician Training",
+    phones: ["+91 98765 43227"],
+    experience: "20 years",
+    city: "Rompicherla",
+    description: "Practical electrician training. Learn house wiring, board connection, and repair works.",
+  },
+  {
+    name: "Sunitha Kitchens",
+    skill: "Cooking",
+    phones: ["+91 98765 43228"],
+    experience: "10 years",
+    city: "Sattenapalle",
+    description: "Learn South Indian traditional cooking, pickles making, and snacks.",
   }
 ];
 
