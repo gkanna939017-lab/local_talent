@@ -1,6 +1,7 @@
 // Booking demo removed — script neutralized by request.
 // No operations are performed here anymore.
 
+(function() {
   let ws = null;
   let simInterval = null;
   let lastLat = 17.0, lastLng = 80.0; // starting point for simulation
